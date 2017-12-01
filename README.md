@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Bastiani/graphql-tests.svg?branch=master)](https://travis-ci.org/Bastiani/graphql-tests)
+
 # Tests with GraphQL, Jest, Koa
 
 My first contact with GraphQL, Jest and Koa
