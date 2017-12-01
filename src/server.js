@@ -1,7 +1,7 @@
 import Koa from 'koa';
 import Router from 'koa-router';
 import koaBody from 'koa-body';
-import graphqlHttp from 'koa-graphql';
+// import graphqlHttp from 'koa-graphql';
 import graphql from 'graphql';
 
 import database from './database';
