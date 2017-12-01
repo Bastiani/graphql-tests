@@ -4,7 +4,7 @@ import koaBody from 'koa-body';
 import graphqlHttp from 'koa-graphql';
 
 import database from './database';
-import todo from '../mongoose/todo';
+import Todo from '../mongoose/todo';
 import schema from './schema';
 
 database();
@@ -17,16 +17,18 @@ app.use(koaBody({
 }));
 
 async function create(ctx) {
-  const todoItem = new todo({
+  const todoItem = new Todo({
     itemId: ctx.request.body.itemId,
     item: ctx.request.body.item,
     completed: false,
   });
 
-  todoItem.save((err, result) => {
-    err
-      ? console.log(`---TodoItem save failed ${err}`)
-      : console.log(`+++TodoItem saved successfully ${todoItem.item}`);
+  todoItem.save((err) => {
+    if (err) {
+      console.log(`---TodoItem save failed ${err}`);
+    } else {
+      console.log(`+++TodoItem saved successfully ${todoItem.item}`);
+    }
   });
 }
 
