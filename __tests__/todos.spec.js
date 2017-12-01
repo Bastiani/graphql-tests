@@ -1,5 +1,5 @@
 import mockingoose from 'mockingoose';
-import todo from '../mongoose/todo';
+import todo from '../src/mongoose/todo';
 
 describe('test mongoose todo model', () => {
   it('should return the todo with find', () => {

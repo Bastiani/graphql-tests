@@ -1,14 +1,17 @@
 import mongoose from 'mongoose';
 
-export default function connect() {
-  mongoose.connect('mongodb://localhost/test', { useMongoClient: true });
-  mongoose.Promise = global.Promise;
+const database = () =>
+  new Promise((resolve, reject) => {
+    mongoose.Promise = global.Promise;
+    mongoose.connect('mongodb://localhost/test', { useMongoClient: true });
 
-  const db = mongoose.connection;
-  db.on('error', () => {
-    console.log('---FAILED to connect to mongoose');
+    const db = mongoose.connection;
+    db.on('error', () => {
+      reject(new Error('---FAILED to connect to mongoose'));
+    });
+    db.once('open', () => {
+      resolve('+++Connected to mongoose');
+    });
   });
-  db.once('open', () => {
-    console.log('+++Connected to mongoose');
-  });
-}
+
+export default database;

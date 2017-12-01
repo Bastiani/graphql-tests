@@ -1,12 +1,12 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } from 'graphql';
 
-import ToDo from '../mongoose/todo';
+import ToDo from './mongoose/todo';
 
 const ToDoType = new GraphQLObjectType({
   name: 'ToDo',
   fields: () => ({
     _id: {
-      type: GraphQLInt,
+      type: GraphQLString,
       resolve: todo => todo.id,
     },
     item: {
