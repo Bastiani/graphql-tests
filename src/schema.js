@@ -1,9 +1,16 @@
-import { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } from 'graphql';
+import {
+  GraphQLNonNull,
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLList,
+} from 'graphql';
 
-import ToDo from './mongoose/todo';
+import Todo from './mongoose/todo';
 
-const ToDoType = new GraphQLObjectType({
-  name: 'ToDo',
+const TodoType = new GraphQLObjectType({
+  name: 'Todo',
   fields: () => ({
     _id: {
       type: GraphQLString,
@@ -19,23 +26,53 @@ const ToDoType = new GraphQLObjectType({
 const QueryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
-    findToDos: {
-      type: new GraphQLList(ToDoType),
+    findTodos: {
+      type: new GraphQLList(TodoType),
       args: {
         itemId: {
           type: GraphQLInt,
         },
       },
       resolve(_, args) {
-        const response = ToDo.find({ itemId: args.itemId });
+        const response = Todo.find({ itemId: args.itemId });
         return response;
       },
     },
   }),
 });
 
+const MutationAdd = {
+  type: new GraphQLList(TodoType),
+  description: 'Add a Todo',
+  args: {
+    title: {
+      item: 'Todo item',
+      type: new GraphQLNonNull(GraphQLString),
+    },
+  },
+  resolve: (root, { title }) => {
+    const todoItem = new Todo({
+      itemId: 1,
+      item: title,
+      completed: false,
+    });
+    todoItem
+      .save()
+      .then(() => todoItem)
+      .catch(err => err);
+  },
+};
+
+const MutationType = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    add: MutationAdd,
+  },
+});
+
 const schema = new GraphQLSchema({
   query: QueryType,
+  mutation: MutationType,
 });
 
 export default schema;
