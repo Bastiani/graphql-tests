@@ -6,15 +6,20 @@ import {
   GraphQLInt,
   GraphQLList,
 } from 'graphql';
+import { mutationWithClientMutationId } from 'graphql-relay';
 
 import Todo from './mongoose/todo';
 
 const TodoType = new GraphQLObjectType({
-  name: 'Todo',
+  name: 'TodoType',
   fields: () => ({
     _id: {
       type: GraphQLString,
       resolve: todo => todo.id,
+    },
+    itemId: {
+      type: GraphQLInt,
+      resolve: todo => todo.itemId,
     },
     item: {
       type: GraphQLString,
@@ -41,32 +46,44 @@ const QueryType = new GraphQLObjectType({
   }),
 });
 
-const MutationAdd = {
-  type: new GraphQLList(TodoType),
-  description: 'Add a Todo',
-  args: {
-    title: {
-      item: 'Todo item',
+const AddTodo = mutationWithClientMutationId({
+  name: 'AddTodo',
+  inputFields: {
+    itemId: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
+    item: {
       type: new GraphQLNonNull(GraphQLString),
     },
   },
-  resolve: (root, { title }) => {
+  mutateAndGetPayload: ({ itemId, item }) => {
     const todoItem = new Todo({
-      itemId: 1,
-      item: title,
+      itemId,
+      item,
       completed: false,
     });
-    todoItem
+
+    return todoItem
       .save()
-      .then(() => todoItem)
+      .then(todo => todo)
       .catch(err => err);
   },
-};
+  outputFields: {
+    todo: {
+      type: TodoType,
+      resolve: obj => obj,
+    },
+    err: {
+      type: GraphQLString,
+      resolve: err => err,
+    },
+  },
+});
 
 const MutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    add: MutationAdd,
+    AddTodo,
   },
 });
 
