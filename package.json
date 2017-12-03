@@ -54,6 +54,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "graphql": "^0.11.7",
+    "graphql-relay": "^0.5.3",
     "koa": "^2.4.1",
     "koa-body": "^2.5.0",
     "koa-graphql": "^0.7.3",
