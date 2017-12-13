@@ -13,3 +13,11 @@ My first contact with GraphQL, Jest and Koa
 
 This project is licensed under the MIT License - see the
 [LICENSE.md](LICENSE.md) file for details
+
+## Annotations
+### Links:
+  * [fun fun function](https://www.youtube.com/watch?v=lAJWHHUz8_8)
+  * [graphql-vs-rest-tutorial](https://www.toptal.com/api-development/graphql-vs-rest-tutorial)
+  * [relay-modern](https://facebook.github.io/relay/docs/en/relay-modern.html)
+  * [graphql](http://graphql.org/learn/)
+  * [howtographql](https://www.howtographql.com/)
