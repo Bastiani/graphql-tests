@@ -1,0 +1,34 @@
+# An object with an ID
+interface Node {
+  # The id of the object.
+  id: ID!
+}
+
+type Query {
+  allTodos: [Todo]
+
+  # Fetches an object given its ID
+  node(
+    # The ID of an object
+    id: ID!
+  ): Node
+}
+
+type Todo implements Node {
+  # The ID of an object
+  id: ID!
+  item: String
+  completed: Boolean
+}
+
+# An edge in a connection.
+type TodoEdge {
+  # The item at the end of the edge
+  node: Todo
+}
+
+# A connection to a list of items.
+type TodoConnection {
+  # A list of edges.
+  edges: [TodoEdge]
+}

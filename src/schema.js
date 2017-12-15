@@ -1,78 +1,65 @@
 import {
-  GraphQLNonNull,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
+  GraphQLBoolean,
   GraphQLList,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
 } from 'graphql';
+
+import { connectionDefinitions, fromGlobalId, globalIdField, nodeDefinitions } from 'graphql-relay';
 
 import Todo from './mongoose/todo';
 
-const TodoType = new GraphQLObjectType({
+const { nodeInterface, nodeField } = nodeDefinitions(
+  (globalId) => {
+    const { type, id } = fromGlobalId(globalId);
+    if (type === 'Todo') {
+      return Todo.find({ id });
+    }
+    return null;
+  },
+  (obj) => {
+    if (obj instanceof Todo) {
+      return GraphQLTodo;
+    }
+    return null;
+  },
+);
+
+const GraphQLTodo = new GraphQLObjectType({
   name: 'Todo',
-  fields: () => ({
-    _id: {
-      type: GraphQLString,
-      resolve: todo => todo.id,
-    },
+  fields: {
+    id: globalIdField('Todo'),
     item: {
       type: GraphQLString,
-      resolve: todo => todo.item,
+      resolve: obj => obj.item,
     },
-  }),
+    completed: {
+      type: GraphQLBoolean,
+      resolve: obj => obj.completed,
+    },
+  },
+  interfaces: [nodeInterface],
 });
 
-const QueryType = new GraphQLObjectType({
+const { connectionType: TodosConnection, edgeType: GraphQLTodoEdge } = connectionDefinitions({
+  name: 'Todo',
+  nodeType: GraphQLTodo,
+});
+
+const Query = new GraphQLObjectType({
   name: 'Query',
-  fields: () => ({
-    findTodos: {
-      type: new GraphQLList(TodoType),
-      args: {
-        itemId: {
-          type: GraphQLInt,
-        },
-      },
-      resolve(_, args) {
-        const response = Todo.find({ itemId: args.itemId });
-        return response;
-      },
-    },
-  }),
-});
-
-const MutationAdd = {
-  type: new GraphQLList(TodoType),
-  description: 'Add a Todo',
-  args: {
-    title: {
-      item: 'Todo item',
-      type: new GraphQLNonNull(GraphQLString),
-    },
-  },
-  resolve: (root, { title }) => {
-    const todoItem = new Todo({
-      itemId: 1,
-      item: title,
-      completed: false,
-    });
-    todoItem
-      .save()
-      .then(() => todoItem)
-      .catch(err => err);
-  },
-};
-
-const MutationType = new GraphQLObjectType({
-  name: 'Mutation',
   fields: {
-    add: MutationAdd,
+    allTodos: {
+      type: new GraphQLList(GraphQLTodo),
+      resolve: () => Todo.find({}),
+    },
+    node: nodeField,
   },
 });
 
 const schema = new GraphQLSchema({
-  query: QueryType,
-  mutation: MutationType,
+  query: Query,
 });
 
 export default schema;

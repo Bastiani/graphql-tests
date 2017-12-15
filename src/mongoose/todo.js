@@ -4,7 +4,6 @@ const { Schema } = mongoose;
 
 const todoSchema = new Schema(
   {
-    itemId: Number,
     item: String,
     completed: Boolean,
   },
