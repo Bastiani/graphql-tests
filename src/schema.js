@@ -6,7 +6,7 @@ import {
   GraphQLString,
 } from 'graphql';
 
-import { connectionDefinitions, fromGlobalId, globalIdField, nodeDefinitions } from 'graphql-relay';
+import { fromGlobalId, globalIdField, nodeDefinitions } from 'graphql-relay';
 
 import Todo from './mongoose/todo';
 
