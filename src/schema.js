@@ -20,6 +20,7 @@ const { nodeInterface, nodeField } = nodeDefinitions(
   },
   (obj) => {
     if (obj instanceof Todo) {
+      // eslint-disable-next-line
       return GraphQLTodo;
     }
     return null;
@@ -42,10 +43,10 @@ const GraphQLTodo = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-const { connectionType: TodosConnection, edgeType: GraphQLTodoEdge } = connectionDefinitions({
+/* const { connectionType: TodosConnection, edgeType: GraphQLTodoEdge } = connectionDefinitions({
   name: 'Todo',
   nodeType: GraphQLTodo,
-});
+}); */
 
 const Query = new GraphQLObjectType({
   name: 'Query',
