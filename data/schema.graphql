@@ -1,3 +1,13 @@
+input AddTodoInput {
+  item: String!
+  clientMutationId: String
+}
+
+type AddTodoPayload {
+  todoEdge: TodoEdge
+  clientMutationId: String
+}
+
 # An object with an ID
 interface Node {
   # The id of the object.
@@ -31,4 +41,8 @@ type TodoEdge {
 type TodoConnection {
   # A list of edges.
   edges: [TodoEdge]
+}
+
+type Mutation {
+  addTodo(input: AddTodoInput!): AddTodoPayload
 }
