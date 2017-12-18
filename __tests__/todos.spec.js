@@ -5,7 +5,6 @@ describe('test mongoose todo model', () => {
   it('should return the todo with find', () => {
     const todoItem = {
       _id: '5a2192118b9a881f1fe480f0',
-      itemId: 1,
       item: 'test todo',
       completed: false,
     };

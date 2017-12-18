@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const database = () =>
   new Promise((resolve, reject) => {
     mongoose.Promise = global.Promise;
-    mongoose.connect('mongodb://localhost/test', { useMongoClient: true });
+    mongoose.connect('mongodb://localhost/todo', { useMongoClient: true });
 
     const db = mongoose.connection;
     db.on('error', () => {

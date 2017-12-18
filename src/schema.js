@@ -1,95 +1,115 @@
 import {
-  GraphQLNonNull,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
+  GraphQLBoolean,
   GraphQLList,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+  GraphQLNonNull,
 } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
 
+import {
+  mutationWithClientMutationId,
+  connectionDefinitions,
+  fromGlobalId,
+  globalIdField,
+  nodeDefinitions,
+} from 'graphql-relay';
+
 import Todo from './mongoose/todo';
 
-const TodoType = new GraphQLObjectType({
-  name: 'TodoType',
-  fields: () => ({
-    _id: {
-      type: GraphQLString,
-      resolve: todo => todo.id,
-    },
-    itemId: {
-      type: GraphQLInt,
-      resolve: todo => todo.itemId,
-    },
+const { nodeInterface, nodeField } = nodeDefinitions(
+  (globalId) => {
+    const { type, id } = fromGlobalId(globalId);
+    if (type === 'Todo') {
+      return Todo.find({ id });
+    }
+    return null;
+  },
+  (obj) => {
+    if (obj instanceof Todo) {
+      // eslint-disable-next-line
+      return GraphQLTodo;
+    }
+    return null;
+  },
+);
+
+const GraphQLTodo = new GraphQLObjectType({
+  name: 'Todo',
+  fields: {
+    id: globalIdField('Todo'),
     item: {
       type: GraphQLString,
-      resolve: todo => todo.item,
+      resolve: obj => obj.item,
     },
-  }),
-});
-
-const QueryType = new GraphQLObjectType({
-  name: 'Query',
-  fields: () => ({
-    findTodos: {
-      type: new GraphQLList(TodoType),
-      args: {
-        itemId: {
-          type: GraphQLInt,
-        },
-      },
-      resolve(_, args) {
-        const response = Todo.find({ itemId: args.itemId });
-        return response;
-      },
-    },
-  }),
-});
-
-const AddTodo = mutationWithClientMutationId({
-  name: 'AddTodo',
-  inputFields: {
-    itemId: {
-      type: new GraphQLNonNull(GraphQLInt),
-    },
-    item: {
-      type: new GraphQLNonNull(GraphQLString),
+    completed: {
+      type: GraphQLBoolean,
+      resolve: obj => obj.completed,
     },
   },
-  mutateAndGetPayload: ({ itemId, item }) => {
-    const todoItem = new Todo({
-      itemId,
+  interfaces: [nodeInterface],
+});
+
+const { edgeType: GraphQLTodoEdge } = connectionDefinitions({
+  name: 'Todo',
+  nodeType: GraphQLTodo,
+});
+
+const Query = new GraphQLObjectType({
+  name: 'Query',
+  fields: {
+    allTodos: {
+      type: new GraphQLList(GraphQLTodo),
+      resolve: () => Todo.find({}),
+    },
+    node: nodeField,
+  },
+});
+
+const GraphQLAddTodoMutation = mutationWithClientMutationId({
+  name: 'AddTodo',
+  inputFields: {
+    item: { type: new GraphQLNonNull(GraphQLString) },
+  },
+  outputFields: {
+    todoEdge: {
+      type: GraphQLTodoEdge,
+      resolve: ({ _id }) => {
+        console.log(`========== ${_id}`);
+        const todo = Todo.find({ _id });
+        return {
+          // cursor: cursorForObjectInConnection(Todo, todo),
+          node: todo,
+        };
+      },
+    },
+  },
+  mutateAndGetPayload: async ({ item }) => {
+    const todo = new Todo({
       item,
       completed: false,
     });
-
-    return todoItem
-      .save()
-      .then(todo => todo)
-      .catch(err => err);
-  },
-  outputFields: {
-    todo: {
-      type: TodoType,
-      resolve: obj => obj,
-    },
-    err: {
-      type: GraphQLString,
-      resolve: err => err,
-    },
+    try {
+      const localTodoId = await todo.save();
+      const { _id } = localTodoId;
+      return { _id };
+    } catch (err) {
+      return { err };
+    }
   },
 });
 
-const MutationType = new GraphQLObjectType({
+const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    AddTodo,
+    addTodo: GraphQLAddTodoMutation,
   },
 });
 
 const schema = new GraphQLSchema({
-  query: QueryType,
-  mutation: MutationType,
+  query: Query,
+  mutation: Mutation,
 });
 
 export default schema;

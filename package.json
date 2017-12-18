@@ -12,7 +12,9 @@
     "nodemon": "nodemon --exec npm run babel-node -- src/server.js",
     "build": "npm run clean && mkdir -p lib && ./node_modules/.bin/babel src -s -D -d lib",
     "lint": "./node_modules/.bin/eslint src/*.js",
-    "prepush": "npm run lint"
+    "prepush": "npm run lint",
+    "relay": "relay-compiler --src ./src/ --schema ./data/schema.graphql",
+    "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "keywords": [
     "koa",
@@ -49,12 +51,12 @@
     "jest": "^21.2.1",
     "jest-cli": "^21.2.1",
     "mockingoose": "^2.4.0",
+    "relay-compiler": "^1.4.1",
     "rimraf": "^2.6.2"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
     "graphql": "^0.11.7",
-    "graphql-relay": "^0.5.3",
+    "graphql-relay": "^0.5.4",
     "koa": "^2.4.1",
     "koa-body": "^2.5.0",
     "koa-graphql": "^0.7.3",
